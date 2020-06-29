@@ -1,0 +1,321 @@
+<html>
+<head>
+  <meta charset = "utf-8">
+  <title>Marathon Data</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <style>
+    h1{
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    path {
+      stroke: rgb(20, 20, 20);
+      stroke-width: 5;
+    }
+
+    #container{
+      float: left;
+      margin: 0 auto;
+      margin-top: 50px;
+      margin-bottom: 50px;
+      width: 80%;
+      border-color: black;
+    }
+  </style>
+  <script src='https://d3js.org/d3.v4.min.js'></script>
+</head>
+<body>
+  <h1>Comparative Splits in the 2017 Boston Marathon</h1>
+
+  <h2 id="runnerName"></h2>
+  <input type="number" id="athleteNumber" value="" min="1" max="26410">
+  <p>Input an athlete between 1 and 26410.</p>
+  <button id = "goButton">Generate Graph</button>
+  </input>
+
+  <div id="container"></div>
+  <script>
+    //*******Constants*******
+    const width = 1500,
+          height = 500,
+          margin = {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10,
+            barWidth: 10,
+            barHeightFactor: 1,
+          };
+
+    const padding = 30; // whatever padding you want
+
+    //*******SVG*******
+    var svg = d3.select("#container")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .style("display", "block")
+                .style("overflow", "visible");
+
+    //*******Generate Plot*******
+      d3.json("http://localhost:8000/bosmar.json", function(marathonpathdata){
+      // d3.json("http://localhost:8000/EOTMAJROADS_ARC.json", function(roadpathdata){
+        // d3.csv("http://localhost:8000/marathon_results_2017.csv", function(datarow){
+        console.log(marathonpathdata)
+        //console.log(roadpathdata)
+
+          var projection = d3.geoConicEquidistant()
+                              .rotate([74 + 30 / 60, -38 - 50 / 60])
+                             .fitExtent(
+                                  [[padding, padding],
+                                  [-padding + width, -padding + height]],
+                                  marathonpathdata.features[0])
+
+          var path = d3.geoPath()
+                       .projection(projection); // ensure centred in group
+
+          // var roads = svg.selectAll("path")
+          //                .data(roadpathdata.geometries)
+          //                .enter()
+          //                .append("path")
+          //                .attr("d", path)
+                        //  .attr("fill", "rgb(255,255,255)")
+
+          var route = svg.selectAll(".marathon_path")
+                         .data(marathonpathdata.features)
+                         .enter()
+                         .append("path")
+                         .attr("d", path)
+                         .attr("fill", "rgb(255,255,255)")
+                         .attr("class", "marathon_path")
+                         //bind a g rather than a path
+          d3.csv("http://localhost:8000/marathon_results_2017.csv", dataCallBack);
+        // });
+      });
+    // });
+
+
+    function changeRunner() {
+      athlete = document.getElementById("athleteNumber").value - 1;
+      document.getElementById("runnerName").innerHTML = data[athlete].Name;//put the name of the athlete
+    }
+
+    function dataCallBack(dataset){
+      d3.select("#goButton").on("click", changeRunner)
+      splitNames = findAvgSplits(dataset);
+      // var athlete = null;//SOME PRO
+      // splitNames.forEach(function(name) {
+      // })
+      //  var splitDifs = [];
+
+      generateGraphs(dataset);
+
+    }
+    function generateGraphs(data, athlete) { //may want to factor out these into separate functions
+      var numRows=0; //there are 26410 rows/athletes
+      var total5k;
+      var total10k;
+      var total15k;
+      var total20k;
+      var total25k;
+      var total30k;
+      var total35k;
+      var total40k;
+      var totalFinshSplit;
+      var athlete5k = data[athlete].five;
+      var athlete10k = data[athlete].ten-data[athlete].five;
+      var athlete15k = data[athlete].fifteen-data[athlete].ten;
+      var athlete20k = data[athlete].twenty-data[athlete].fifteen;
+      var athlete25k = data[athlete].twentyfive-data[athlete].twenty;
+      var athlete30k = data[athlete].thirty-data[athlete].twentyfive;
+      var athlete35k = data[athlete].thirtyfive-data[athlete].thirty;
+      var athlete40k = data[athlete].forty-data[athlete].thirtyfive;
+      var athleteFnishSplit = data[athlete].Official_Time-data[athlete].forty;
+      data.forEach(function(d) {
+        numRows++;
+        total5k += d.five;
+        total10k += (d.ten - d.five);
+        total15k += (d.fifteen - d.ten);
+        total20k += (d.twenty - d.fifteen);
+        total25k += (d.twentyfive - d.twenty);
+        total30k += (d.thirty - d.twentyfive);
+        total35k += (d.thirtyfive - d.thirty);
+        total40k += (d.forty - d.thirtyfive);
+        totalFinishSplit += (d.Official_Time - d.forty);
+      });//d3.avg
+      var avg5kSplit = (total5k / numRows);
+      var avg10kSplit = (total10k / numRows);
+      var avg15kSplit = (total15k / numRows);
+      var avg20kSplit = (total20k / numRows);
+      var avg25kSplit = (total25k / numRows);
+      var avg30kSplit = (total30k / numRows);
+      var avg35kSplit = (total35k / numRows);
+      var avg40kSplit = (total40k / numRows);
+      var avgFinishSplit = totalFinishSplit / numRows;
+      var dif5kSplit = avg5kSplit - athlete5k;
+      var dif10kSplit = avg10kSplit - athlete10k;
+      var dif15kSplit = avg15kSplit - athlete15k;
+      var dif20kSplit = avg20kSplit - athlete20k;
+      var dif25kSplit = avg25kSplit - athlete25k;
+      var dif30kSplit = avg30kSplit - athlete30k;
+      var dif35kSplit = avg35kSplit - athlete35k;
+      var dif40kSplit = avg40kSplit - athlete40k;
+      var difFinishSplit = avgFinishSplit - athleteFinishSplit;
+      createComparisonCharts(dif5kSplit, dif10kSplit, dif15kSplit, dif20kSplit, dif25kSplit, dif30kSplit, dif35kSplit, dif40kSplit, difFinishSplit) ;
+    }
+    function createComparisonCharts(dif5kSplit, dif10kSplit, dif15kSplit, dif20kSplit, dif25kSplit, dif30kSplit, dif35kSplit, dif40kSplit, difFinishSplit) {
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(dif5kSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(dif5kSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(dif5kSplit);
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(dif10kSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(dif10kSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(dif10kSplit);
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(dif15kSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(dif15kSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(dif15kSplit);
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(dif20kSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(dif20kSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(dif20kSplit);
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(dif25kSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(dif25kSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(dif25kSplit);
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(dif30kSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(dif30kSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(dif30kSplit);
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(dif35kSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(dif35kSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(dif35kSplit);
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(dif40kSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(dif40kSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(dif40kSplit);
+      svg.selectAll("rect")
+          .enter()
+          .append("rect")
+          .attr("x", )
+          .attr("y", )
+          .attr("height", Math.Abs(difFinishSplit)*barHeightFactor)
+          .attr("width", barWidth) //some standard amount
+          .attr("style", function(dif5kSplit){if {(difFinishSplit<0) return red;}
+                                              else return blue}); //red for the runner? blue for the crowd?
+      svg.append("text")
+          .attr("x", )
+          .attr("y", )
+          .attr("style",)
+          .text(difFinishSplit);
+
+
+    };//add groups to the svg with two rectangles with height relative to the split times at the given coordinates
+    //find rect and g attributes
+
+    // 5k: 42.250917, -71.472306
+    // 10K: 42.272972, -71.427583
+    // 15K: 42.283722, -71.368500
+    // 20K: 42.295833, -71.313167
+    // 25K: 42.318553, -71.265872
+    // 30K: 42.336707, -71.222367
+    // 35K: 42.340085, -71.166154
+    // 40K: 42.345435, -71.109075
+    // finish: 42.347936, -71.085268
+    //json - csv - avgs - calcDif - draw
+      // createComparisonCharts()
+
+    // function createComparisonCharts(){
+      // splitNames.forEach(function(name) {
+      // })
+
+
+    //********Data Sorting*******
+
+
+    </script>
+    </body>
+    </html>

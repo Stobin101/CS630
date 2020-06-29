@@ -1,0 +1,51 @@
+<!--title, header, a center div, and an SVG element-->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cole's Outrageous Fun</title>
+    <!-- <link rel = "stylesheet" type="text/css" href="style.css"> -->
+    <style>
+    #container{
+      margin: 0 auto;
+      margin-top: 50px;
+    }
+    </style>
+    <script src = 'https://d3js.org/d3.v4.min.js'></script>
+  </head>
+  <body>
+    <h1> D3-generated SVGs!!! </h1>
+
+    <div id="container">
+    </div>
+    <p>
+    </p>
+    <script>
+    const width = 1000,
+          height = 600;
+
+    var data = [8,6,2,6,8,1,3,6,2];
+
+    var svg = d3.select("#container")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .style("background-color", "rgb(200,200,200)")
+      .style("margin", "0 auto")
+      .style("display", "block")
+
+    svg.selectAll("rect")
+      .data(dataset)
+      .enter()//selects all the unused pieces in the "dataset" with new objects from "selectAll()"
+      .append("rect")
+      .attr("x", function(d) {return d[0]})
+      .attr("y", function(d) {return d[1]})
+      .attr("width", 50)
+      .attr("height", 50)
+
+
+
+
+    </script>
+  </body>
+</html>

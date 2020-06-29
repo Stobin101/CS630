@@ -1,0 +1,13 @@
+<svg height = "300" width = "300"
+  xmlns = "http://www.w3.org/2000/svg"
+  version = "1.1">
+ <<ellipse cx="150" cy="150" rx="100" ry="50"
+style="fill:Blue;stroke:black;stroke-width:0" />
+<<ellipse cx="150" cy="150" rx="50" ry="25"
+style="fill:Red;stroke:black;stroke-width:0" />
+<!-- <<rect cx="150" cy="150" rx="100" ry="50"
+style="fill:Blue;stroke:black;stroke-width:2" /> -->
+  <!-- <oval height = "100" width = "200" fill = "blue"/>
+  <oval height = "50" width = "100" fill = "red" x = "25" y = "50"/>
+  <rect height = "100" width = "200" fill = "red"/> -->
+</svg>

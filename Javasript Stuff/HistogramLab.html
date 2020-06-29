@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Javascript! Outrageous Fun!</title>
+    <link href="styles.css" type="text/css" rel="stylesheet">
+</head>
+
+<body>
+  <!-- space for the title -->
+  <div id="top">
+  </div>
+  <!-- space for the graphic -->
+  <div id="graphic">
+  </div>
+  <!-- space for the input fields -->
+  <div id="inputs">
+    <p id = "p1">
+      Input number of samples: <input type="text" id="samplesInput" >
+    </p>
+    <p id = "p2">
+      Input normalcy: <input type="text" id="normalcyInput" >
+    </p>
+    <p id = "p3">
+      Input number of samples: <input type="text" id="binsInput" >
+    </p>
+  </div>
+
+
+</body>
+
+<script type="text/javascript">
+//adds a title
+  document.getElementById("top").innerHTML = "Cole's outrageous histogram!";
+
+  //chart initialization setup
+  var chartHeight = '500';
+  var chartWidth = '1000';
+  var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.id = "svg";
+  svg.setAttribute("height", chartHeight);
+  svg.setAttribute("width", chartWidth);
+  svg.setAttribute("fill", "red");
+  svg.setAttribute("style", "border: 1px solid black");
+  document.getElementById("graphic").appendChild(svg);
+
+// //the input fields for the samples, normalcy, and number of bins
+//   var samplesInput = document.createElement("input");
+//   var normalcyInput = document.createElement("input");
+//   var binsInput = document.createElement("input");
+//   samplesInput.setAttribute("type", "text");
+//   normalcyInput.setAttribute("type", "text");
+//   binsInput.setAttribute("type", "text");
+//   document.getElementById("p1").innerHTML = "Input number of samples ";
+//   document.getElementById("p1").appendChild(samplesInput);
+//   document.getElementById("p2").innerHTML = "Input normalcy ";
+//   document.getElementById("p2").appendChild(normalcyInput);
+//   document.getElementById("p3").innerHTML = "Input number of samples ";
+//   document.getElementById("p3").appendChild(binsInput);
+
+
+//the javascript for the "generate graph" button
+  var button1 = document.createElement("BUTTON");
+  var button1Text = document.createTextNode("Press to generate chart");
+  button1.appendChild(button1Text);
+  document.body.appendChild(button1);
+  var sInput = document.getElementById("samplesInput").value;
+  var nInput = document.getElementById("normalcyInput").value;
+  var bInput = document.getElementById("binsInput").value;
+  button1.onclick = makeGraph(sInput, nInput, bInput);
+
+//is a function that generates the distribution data points to be used in the graph
+  function generateDistribution(numSamples, normalcy){
+    var distribution = [numSamples];
+    for (var k = 0; k <distribution.length; k++){
+      for (var i = 0; i<normalcy; i++){
+        distribution[k] += Math.random();
+      }
+      distribution[k] /= normalcy;
+    }
+    return distribution;
+  }
+
+//makes a histogram graph given the number of samples, normalcy, and number of bins
+  function makeGraph(numSamples, normalcy, numBins){
+    var graph = document.getElementById("svg");
+    var dis = generateDistribution(numSamples, normalcy);
+    var rectWidth = chartWidth / numBins;
+    var numPerBin = [numBins];
+    for (var k = 1; k <= numBins; k++){
+      for (var i = 0; i< dis.length; i++){
+        if ( (i <= (k/numBins)) && ((k/numBins) >= ((k-1)/numBins))){
+          numPerBin[k-1]+=1;
+        }
+      }
+    }
+    for (var i = 0; i < numBins; i ++){
+      var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      var rectHeight = chartHeight / numSamples * numPerBin[i];
+      rect.setAttribute("height", rectHeight);
+      rect.setAttribute("width", rectWidth);
+      rect.setAttribute("x", rectWidth*i);
+      rect.setAttribute("y", chartHeight-rectHeight);
+      rect.setAttribute("fill", "red");
+      graph.appendChild(rect);
+    }
+  }
+
+</script>
+
+</html>

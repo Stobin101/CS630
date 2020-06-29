@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>JavaScript Basics</title></title>
+    <link href="styles.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<div id="container">
+    <header>
+        <h1>JavaScript Basics</h1>
+    </header>
+    <main>
+        <div class="well">
+            <p>
+                <strong>Our task:</strong> create a simple virtual keyboard tool that could:
+            </p>
+            <ul>
+                <li> Have a button for each of the standard characters one might need to type, </li>
+                <li> Can visualize what you've typed, and </li>
+                <li> Once done, copy that text to the keyboard </li>
+            </ul>
+        </div>
+
+        <div id="solution">
+            <div id="keyboard"> <!-- Will be manipulated by your javascript -->
+            </div>
+            <div id="output">
+                <h3>Output</h3>
+                <p id="display">(Your text should be displayed here as you "type" with the keys of your keyboard.)</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+
+<script type="text/javascript">
+    // TODO: your work goes here.
+
+    var alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+    var keyboard = document.getElementByID("keyboard");
+    alphabet.split("").forEach(addAButtion);
+
+    function addAButtion(letter){
+      keyboard.innerHTML += "<button>" + letter + "</button>";
+    }
+
+
+</script>
+</body>
+</html>

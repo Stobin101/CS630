@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Plotting Characters</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+    body {
+      text-align: center;
+    }
+    p,text {
+      font-family: 'Roboto', sans-serif;
+    }
+    h1 {
+      font-family: 'Georgia', serif;
+      font-weight: 200;
+    }
+
+    #container {
+      margin: 0 auto;
+      margin-top: 50px;
+      width: 95%;
+    }
+
+    #explain-text {
+      margin: 0 auto;
+      width: 70%;
+    }
+    </style>
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+</head>
+<body>
+  <h1>Plotting Characters using the <code>path</code></h1>
+<div id="container"></div>
+<div id="explain-text">
+  <p>
+    An example of a scatterplot that uses different plotting characters using the <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths"></a><code>path</code> element</a>.  Inspect the code to see the auto-generated paths.  Check out <a href="https://bl.ocks.org/mbostock/3883245">this example</a> to see how to use a <code>path</code> element to make a line chart.
+  </p>
+</div>
+<script>
+// ******* Constants *******
+const width = 1000,
+      height = 600,
+      margin = {
+          top: 10,
+          bottom: 100,
+          left: 100,
+          right: 10,
+      };
+
+const sampleData = [[10, 4], [18,6], [22, 9], [25, 2], [29, 3]];
+
+const basicStarAtOrigin = "M0,-10.339128153936105L2.3212788972794764,-3.1949663065867338L9.833095203611615,-3.194966306586734L3.7559081531660685,1.2203685362054149L6.077187050445547,8.364530383554786L4.440892098500626e-16,3.949195540762637L-6.077187050445545,8.364530383554788L-3.755908153166069,1.2203685362054162L-9.833095203611615,-3.194966306586732L-2.3212788972794773,-3.1949663065867333Z";
+// ******* create a path-generating tool *******
+var symbolGenerator = d3.symbol()
+  .type(d3.symbolStar)
+  .size(120);
+
+var starPathData = symbolGenerator();
+
+symbolGenerator = d3.symbol()
+  .type(d3.symbolWye)
+  .size(120);
+
+var wyePathData = symbolGenerator();
+var bigWyePathData = symbolGenerator.size(6000)();
+
+
+// Options: d3.symbolCircle, d3.symbolCross, d3.symbolDiamond,
+//    d3.symbolSquare, d3.symbolStar, d3.symbolTriangle, d3.symbolWye
+
+// ******* Scales *******
+var x = d3.scaleLinear()
+    .domain([0, 36])                      // Change this!
+    .range([0, width - margin.left - margin.right]);
+var y = d3.scaleLinear()
+    .domain([0, 10])                      // Change this!
+    .range([height - margin.bottom, margin.top]);
+
+// ******* Create SVG *******
+var svg = d3.select("#container").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("margin", "0 auto")
+    .style("display", "block")
+    .style("overflow", "visible")
+
+// ******* Generate plot *******
+var paths = svg.selectAll("path")
+    .data(sampleData)                    // example data
+    .enter()
+    .append("path")
+    .attr("d", function(d){
+      if(d[1]<5){
+        return wyePathData;
+      }
+      else{
+        return starPathData;
+      }
+    })
+    .attr("fill-opacity", 0.8)
+    .attr("fill", "rgb(108, 59, 152)")
+    .attr("transform", function(d){
+      return `translate(${x(d[0])}, ${y(d[1])})`
+    });
+
+
+paths.filter(function(d){return d[1]>5})
+    .attr("d", starPathData)
+    .attr("fill", "rgb(200,12,50)")
+    .on("mouseover", function(d){
+      d3.select(this)
+      .transition()
+      .duration(2000)
+      .attr("d", bigWyePathData)
+    })
+// ******* Axes *******
+svg.append("g")
+    .attr("transform",`translate(${margin.left}, ${height - margin.bottom})`)
+    .call(d3.axisBottom(x).ticks(5));
+
+svg.append("text")
+    .attr("transform",
+          `translate(${width / 2}, ${height - (margin.bottom / 2)})`)
+    .text("x-axis");
+
+svg.append("g")
+    .attr("transform", `translate(${margin.left}, ${0})`)
+    .call(d3.axisLeft(y).ticks(2));
+
+svg.append("text")
+    .attr("transform",
+        `translate(${margin.left / 2}, ${height / 2}) rotate(-90) `)
+    .text("y-axis");
+
+// svg.append("path").attr("d", basicStarAtOrigin).attr("fill", "rgb(200,12,50)")
+
+</script>
+</body>
+</html>

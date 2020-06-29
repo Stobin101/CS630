@@ -1,0 +1,195 @@
+/* Country: Color
+   Year: Drop Down Selection
+   Axes: Drop Down Selection
+   */
+
+const width = 1000,
+      height = 600
+      margin = {
+          top: 10,
+          bottom: 100,
+          left: 100,
+          right: 10,
+      };
+
+var numPoints = 200;
+const slow = 500;
+var random = true; // true to get random points, false to get top points
+
+// This is a list of possible columns that can be displayed on the axes
+// Year is not included because every year is treated as a separate dataset
+var integralColumns = ["world_rank", "national_rank", "quality_of_education", "alumni_employment", "quality_of_faculty", "publications", "influence", "citations", "patents", "score"];
+
+// Generates random string of length characters
+function generateKey(length) {
+    var string = "";
+    for (var i = 0; i < length; i++) {
+        var alphabet = "abcdefghijklmnopqrstuvwxyz1234567890";
+        string += alphabet[Math.floor(Math.random() * (alphabet.length - 1))];
+    }
+    return string;
+}
+// Utility functions
+function selectSubset(year, numPoints, random, data) {
+    var subset = [];
+    data.forEach(function(d) {
+        if (d.year == year) subset.push(d);
+    });
+
+    var subset_copy = subset;
+    console.log(subset_copy);
+    if (random == true) {
+        var randomSelection = [];
+        for (var i = 0; i < numPoints; i++) {
+            var index = Math.floor(Math.random() * (subset_copy.length - 1));
+            randomSelection.push(subset_copy[index]);
+            subset_copy.splice(index, 1);
+        }
+        console.log(randomSelection);
+        return randomSelection;
+    }
+}
+
+function generateRanges(data) {
+    // Object containing ranges for all integral columns
+    var ranges = {};
+    integralColumns.forEach(function(column) {
+        ranges[column] = d3.extent(data, function(d) {return /*add plus to make sure the value is a number*/ +d[column];});
+    });
+    console.log(ranges);
+    return ranges;
+}
+
+function generateScales(ranges) {
+    // Object containing scales for all integral columns
+    var scales = {};
+    integralColumns.forEach(function(column) {
+        var r = ranges[column];
+        scales[column] = [
+            d3.scaleLinear().domain(r).range([margin.left, width - margin.right]), // For the x axis
+            d3.scaleLinear().domain(r).range([height - margin.bottom, margin.top]) // FOr the y axis
+        ];
+    });
+    return scales;
+}
+
+/* Returns a new copy of the data passed into the function with a key row added to the end */
+function addKeys(data){
+    data.forEach(function(d) {
+        d["key"] = generateKey(32); // Add new member called "key" to each object
+    });
+    return data;
+}
+
+// Key Function for databinding
+function dataBindKeyFunc(d) {
+    return d.key;
+}
+
+var dataset = [];
+function dataLoadedCallback(error, data) {
+    dataset = addKeys(data);
+    // Add keys to data
+    onDataLoad();
+}
+
+// ******* Set Default Axes *******
+var selectedXAxis = "quality_of_education";
+var selectedYAxis = "world_rank";
+
+var selectedYear = 2015;
+
+// Event handlers
+function onDataLoad() {
+    var dataSubset = selectSubset(selectedYear, numPoints, random, dataset);
+
+    // ******* Set Ranges *******
+    var ranges = generateRanges(dataSubset);
+
+    var scales = generateScales(ranges);
+
+    // ******* Add data *******
+    svg.selectAll("circle")
+        .data(dataSubset, dataBindKeyFunc)
+        .enter()
+        .append("circle")
+        .attr("cx", function(d) {return scales[selectedXAxis][0](d[selectedXAxis]);})
+        .attr("cy", function(d) {return scales[selectedYAxis][1](d[selectedYAxis]);})
+        .attr("r", 5)
+        .attr("fill", "red");
+
+    svg.append("g")
+        .attr("transform", `translate(0 ${height - margin.bottom})`)
+        .call(d3.axisBottom(scales[selectedXAxis][0]));
+    svg.append("g")
+        .attr("transform", `translate(${margin.left} 0)`)
+        .call(d3.axisLeft(scales[selectedYAxis][1]).ticks(5));
+}
+
+function onAxisChange() {
+    // Modify selections and redisplay the data
+    var dataSubset = selectSubset(selectedYear, numPoints, random, dataset);
+
+    //selectedXAxis = newX;
+    //selectedYAxis = newY;
+
+    // ******* Set Ranges *******
+    var ranges = generateRanges(dataSubset);
+
+    var scales = generateScales(ranges);
+
+    svg.selectAll("circle")
+        .data(dataSubset, dataBindKeyFunc)
+        .exit()
+        .remove();
+    svg.selectAll("circle")
+        .data(dataSubset, dataBindKeyFunc)
+        .enter()
+        .attr("r", 5)
+        .attr("fill", "red")
+        .transition()
+        .duration(slow)
+        .attr("cx", function(d) {return scales[selectedXAxis][0](d[selectedXAxis]);})
+        .attr("cy", function(d) {return scales[selectedYAxis][1](d[selectedYAxis]);});
+
+    svg.selectAll("g").remove();
+
+    svg.append("g")
+        .attr("transform", `translate(0 ${height - margin.bottom})`)
+        .call(d3.axisBottom(scales[selectedXAxis][0]));
+    svg.append("g")
+        .attr("transform", `translate(${margin.left} 0)`)
+        .call(d3.axisLeft(scales[selectedYAxis][1]).ticks(5));
+}
+
+var svg = d3.select("#vis-container").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("overflow", "visible");
+
+// Add dropdown elements
+var dropdownX = d3.select("#myDropdown");
+var dropdownY = d3.select("#myDropdown2");
+
+integralColumns.forEach(function(d) {
+   dropdownX.append("a")
+        .on("click", function() {
+            selectedXAxis = d3.select(this).text();
+            console.log(selectedXAxis);
+            onAxisChange();
+        })
+        .text(d);
+    dropdownY.append("a")
+        .on("click", function() {
+            selectedYAxis = d3.select(this).text();
+            onAxisChange();
+        })
+        .text(d);
+});
+
+d3.csv("http://localhost:8000/cwurData.csv", dataLoadedCallback);
+
+/*
+// ******* Scales *******
+var x = d3.scaleLinear().domain(x_range).range([margin.left, width - margin.right]);
+var y = d3.scaleLinear().domain(y_range).range([height - margin.bottom, margin.top]);*/

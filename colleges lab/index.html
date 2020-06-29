@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset='utf-8'>
+      <title>College's!!!!!! by cole</title>
+      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+      <style>
+        body {
+          text-align: center;
+        }
+        p,text {
+          font-family: 'Roboto', sans-serif;
+        }
+        h1 {
+          font-family: 'Georgia', serif;
+          font-weight: 200;
+        }
+        h2 {
+          font-family: 'Georgia', serif;
+          font-weight: 100;
+        }
+        #container {
+          float:right;
+          margin: 0 auto;
+          margin-top: 50px;
+          margin-bottom: 50px;
+          width: 70%;
+          border-color: black;
+        }
+        #legend {
+          float:left;
+          margin: 0 auto;
+          margin-top: 50px;
+          margin-bottom: 50px;
+          width: 30%;
+          border-color: black;
+        }
+        /*style of the x/y axis buttons*/
+        .dropbtn {
+          background-color: #2b58a0 ;
+          color: white;
+          padding: 16px;
+          font-size: 16px;
+          border: none;
+          cursor: pointer;
+        }
+
+        /* style for hovering and clicking on dropdowns */
+        .dropbtn:hover, .dropbtn:focus {
+          background-color: #4286f4 ;
+        }
+
+        /* <div> needed to position the dropdown content */
+        .dropdown {
+          position: relative;
+          display: inline-block;
+        }
+        .dropdown2 {
+          position: relative;
+          display: inline-block;
+        }
+        /* style of dropdown content */
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          background-color: #f9f9f9;
+          min-width: 100%;
+          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          z-index: 1;
+        }
+
+        /* content inside dropdown */
+        .dropdown-content a {
+          color: black;
+          padding: 12px 16px;
+          text-decoration: none;
+          display: block;
+        }
+
+        /* when hovering on content within dropdown */
+        .dropdown-content a:hover {background-color: #f1f1f1 }
+
+        /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+        .show {display:block;}
+        }
+        .randomBtn {
+          background-color: #2b58a0 ;
+          color: white;
+          padding: 16px;
+          font-size: 16px;
+          border: none;
+          cursor: pointer;
+        }
+        /*colors that are used for each country and in legend*/
+        .Turquoise{
+          color: darkturquoise;
+        }
+        .Blue{
+          color: blue;
+        }
+        .Red{
+          color: red;
+        }
+        .Yellow{
+          color: yellow;
+        }
+        .Green{
+          color: green;
+        }
+        .DarkBlue{
+          color: darkslateblue;
+        }
+        .Gold{
+          color: gold;
+        }
+        .SlateBlue{
+          color: mediumslateblue;
+        }
+        .LightGreen{
+          color: lawngreen;
+        }
+        .Magenta{
+          color: magenta;
+        }
+        .Aqua{
+          color: aqua;
+        }
+        .CadetBlue{
+          color: cadetBlue;
+        }
+        .GreyBlue{
+          color: lightsteelblue;
+        }
+        .SandyBrown{
+          color: sandybrown;
+        }
+        .RosyBrown{
+          color: rosybrown;
+        }
+        .Maroon{
+          color: maroon;
+        }
+        .Grey{
+          color: gray;
+        }
+        .SlateGrey{
+          color: darkslategrey;
+        }
+        .Salmon{
+          color: salmon;
+        }
+        .Hotpink{
+          color: hotpink;
+        }
+
+      </style>
+        <script src='https://d3js.org/d3.v4.min.js'>
+      </script>
+  </head>
+<body>
+  <h1> THE Definitive College Rankings</h1>
+  <div id="container"></div>
+  <div id="legend">
+    <p>
+      <h2>Top 20 Educated Countries</h2>
+      USA: <span class="Turquoise">Turquoise</span><br>
+      United Kingdom: <span class="Blue">Blue</span><br>
+      Japan <span class="Red">Red</span><br>
+      Israel: <span class="Yellow">Yellow</span><br>
+      Canada: <span class="Green">Green</span><br>
+      France: <span class="DarkBlue">Dark Blue</span><br>
+      Germany: <span class="Gold">Gold</span><br>
+      Australia: <span class="SlateBlue">Slate Blue</span><br>
+      Switzerland: <span class="LightGreen">Light Green</span><br>
+      Sweden: <span class="Magenta">Magenta</span><br>
+      Denmark: <span class="Aqua">Aqua</span><br>
+      Norway: <span class="CadetBlue">Cadet Blue</span><br>
+      Netherlands: <span class="GreyBlue">Grey Blue</span><br>
+      Austria: <span class="SandyBrown">Sandy Brown</span><br>
+      New Zealand: <span class="RosyBrown">Rosy Brown</span><br>
+      Finland: <span class="Maroon">Maroon</span><br>
+      Luxembourg: <span class="Grey">Grey</span><br>
+      Ireland: <span class="SlateGrey">Slate Grey</span><br>
+      Italy: <span class="Salmon">Salmon</span><br>
+      Taiwan: <span class="Hotpink">Hotpink</span><br>
+    </p>
+    <div class="dropdown">
+      <button id= "dropDown" onclick="dropList1()" class="dropbtn">
+        Choose your x-axis
+      </button>
+      <div id="myDropdown" class="dropdown-content">
+        <a href="#" onclick="changeAxis()"><button id= "nati" onclick="dropList1()" class="dropbtn"></button></a>
+      </div>
+    </div>
+    <div class="dropdown2">
+      <button id= "dropDown2" onclick="dropList2()" class="dropbtn">
+        Choose your y-axis
+      </button>
+      <div id="myDropdown2" class="dropdown-content">
+        <a href="#" onclick="changeAxis()"><button id= "nati" onclick="dropList2()" class="dropbtn"></button></a>
+      </div>
+    </div>
+
+    <div class = "buttons">
+      <button id = "randomBtn" onclick="randomPress()">
+        Randomize Data Points
+      </button>
+      <button id = "btn200" onclick="useTop200()">
+        See top 200 Colleges
+      </button>
+    </div>
+
+    <p>
+      This graph visualizes the correlation of different data series for different collges from the CRUW College and University World Rankings Dataset. <br><br>
+      Change the axes labeled dropdown lists. Choose the top 200 collges or a random selection of collges with the corresponding buttons. <br>
+    </p>
+  <script>
+    //sizing of svg
+    const width = 1000,
+          height = 600
+          margin = {
+              top: 10,
+              bottom: 80,
+              left: 80,
+              right: 10,
+          };
+
+      var numPoints = 200;
+      const slow = 500;
+      const fast = 200;
+
+      // all of the columns that can be used on the axes
+      var cols = ["world_rank", "national_rank", "quality_of_education", "alumni_employment", "quality_of_faculty", "publications", "influence", "citations", "patents", "score"];
+      //functions for random/nonrandom buttons
+      function randomPress(){
+        var random = true;
+        changeAxis(random);
+      }
+      function useTop200(){
+        var random = false;
+        changeAxis(random);
+      }
+
+      //functions for dropdown lists
+      function dropList1() {
+          document.getElementById("myDropdown").classList.toggle("show");
+      }
+      function dropList2() {
+          document.getElementById("myDropdown2").classList.toggle("show");
+      }
+
+      // function for choosing the subset of colleges, used in loadData()
+      function chooseSubset(year, numPoints, random, data) {
+          var subset = [];
+          data.forEach(function(d) {
+              if (d.year == year) subset.push(d);
+          });
+          var subset_copy = subset;
+              if (random == true) {
+                var randomSelection = [];
+                for (var i = 0; i < numPoints; i++) {
+                  var index = Math.floor(Math.random() * (subset_copy.length - 1));
+                  randomSelection.push(subset_copy[index]);
+                  subset_copy.splice(index, 1);
+                }
+              }
+              else{
+                var nonRandomSelection = [];
+                for (var i = 0; i<numPoints; i++){
+                  nonRandomSelection.push(subset_copy[i]);
+                }
+                return nonRandomSelection;
+              }
+              return randomSelection;
+      }
+
+    // function for choosing the range of data, used in loadData()
+      function chooseRanges(data) {
+          var ranges = {};
+          cols.forEach(function(column) {
+              ranges[column] = d3.extent(data, function(d) {return /*add plus to make sure the value is a number*/ +d[column];});
+          });
+          return ranges;
+      }
+
+    // function for choosing the scale of colleges, used in loadData()
+      function chooseScales(ranges) {
+          var scales = {};
+          cols.forEach(function(column) {
+              var r = ranges[column];
+              scales[column] = [
+                  d3.scaleLinear().domain(r).range([margin.left, width - margin.right]), // For the x axis
+                  d3.scaleLinear().domain(r).range([height - margin.bottom, margin.top]) // FOr the y axis
+              ];
+          });
+          return scales;
+      }
+
+      // generates random string to be used in the key function
+      function createKey(length) {
+          var string = "";
+          for (var i = 0; i < length; i++) {
+              var alphabet = "abcdefghijklmnopqrstuvwxyz1234567890";
+              string += alphabet[Math.floor(Math.random() * (alphabet.length - 1))];
+          }
+          return string;
+      }
+
+      // adds a key element to each object
+      function addKey(data){
+          data.forEach(function(d) {
+              d["key"] = createKey(20);
+          });
+          return data;
+      }
+
+      // function for databinding
+      function dataKey(d) {
+          return d.key;
+      }
+
+      var dataset = [];
+      // ******* Set Default Axes *******
+      var selectedXAxis = "national_rank";
+      var selectedYAxis = "world_rank";
+      var selectedYear = 2015;
+
+      // event handlers
+      function loadData() {
+          var random = true;
+          var dataSubset = chooseSubset(selectedYear, numPoints, random, dataset);
+
+          // ******* Set Ranges *******
+          var ranges = chooseRanges(dataSubset);
+          var scales = chooseScales(ranges);
+
+          // ******* Add data *******
+
+          //******* Add Other Functionality *******
+          changeAxis(random);
+      }
+
+      function changeAxis(random) {
+        // change the chart for the new axes
+        var dataSubset = chooseSubset(selectedYear, numPoints, random, dataset);
+
+        // ******* Set Ranges *******
+        var ranges = chooseRanges(dataSubset);
+        var scales = chooseScales(ranges);
+        svg.selectAll("g").remove();
+
+        svg.append("g")
+            .attr("transform", `translate(0 ${height - margin.bottom})`)
+            .call(d3.axisBottom(scales[selectedXAxis][0]));
+            svg.append("g")
+            .attr("transform", `translate(${margin.left} 0)`)
+            .call(d3.axisLeft(scales[selectedYAxis][1]).ticks(5));
+
+        var axisLabels = svg.append("g");
+        axisLabels.append("text")
+            .attr("x", (width / 2))
+            .attr("y", height - (margin.bottom / 2))
+            .attr("text-anchor", "middle")
+            .attr("font-size", "25")
+            .text(selectedXAxis);
+        axisLabels.append("text")
+            .attr("x", margin.left / 2)
+            .attr("y", height / 2)
+            .attr("text-anchor", "middle")
+            .attr("transform", `rotate(-90 ${margin.left / 2} ${height / 2})`)
+            .attr("font-size", "25")
+            .text(selectedYAxis);
+        axisLabels.append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.top / 2)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "30")
+            .text("Rankings for " + selectedYear);
+
+        //remove old data points
+        svg.selectAll("circle")
+            .data(dataSubset, dataKey)
+            .exit()
+            .attr("fill-opacity", 0.8)
+            .transition("disappear")
+            .duration(slow)
+            .attr("fill-opacity", 0.0)
+            .remove();
+
+        // add new datapoints
+        svg.selectAll("circle")
+            .data(dataSubset, dataKey)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) {return scales[selectedXAxis][0](d[selectedXAxis]);})
+            .attr("cy", function(d) {return scales[selectedYAxis][1](d[selectedYAxis]);})
+            .attr("r", 5)
+            .attr("fill", function(d) {switch(d.country){
+                                       case "USA": return "darkturquoise";
+                                       case "United Kingdom": return "blue";
+                                       case "Japan": return "red";
+                                       case "Israel": return "yellow";
+                                       case "Canada": return "green";
+                                       case "France": return "darkslateblue";
+                                       case "Germany": return "gold";
+                                       case "Australia": return "mediumslateblue";
+                                       case "Switzerland": return "lawngreen";
+                                       case "Sweden": return "magenta";
+                                       case "Denmark": return "aqua";
+                                       case "Norway": return "cadetblue";
+                                       case "Netherlands": return "lightsteelblue";
+                                       case "Austria": return "sandybrown";
+                                       case "New Zealand": return "rosybrown";
+                                       case "Finland": return "maroon";
+                                       case "Luxembourg": return "gray";
+                                       case "Ireland": return "darkslategray";
+                                       case "Italy": return "salmon";
+                                       case "Taiwan": return "hotpink";
+                                      }
+                                    })
+            .attr("fill-opacity", 0.0)
+            .on("mouseover", function() {
+                var thisElem = d3.select(this);
+                var text = svg.append("text");
+                text.attr("text-anchor", "start")
+                    .classed("hovertext", true)
+                    .attr("x", thisElem.attr("cx"))
+                    .attr("y", thisElem.attr("cy") - 15)
+                    .text(thisElem.datum().institution + ", " + thisElem.datum().country + ` (${(+thisElem.attr("cx")).toFixed(2)}, ${(+thisElem.attr("cy")).toFixed(2)})`)
+                    .attr("fill-opacity", 0.0)
+                    .transition()
+                    .duration(fast)
+                    .attr("fill-opacity", 1.0);
+                if (text.node().getBBox().x + text.node().getBBox().width >= width) {
+                  text.attr("text-anchor", "end");
+                }
+
+                thisElem.transition()
+                .duration("fast")
+                .attr("r", 10);
+            })
+            .on("mouseout", function() {
+                var thisElem = d3.select(this);
+                svg.selectAll(".hovertext")
+                .transition("text-disappear")
+                .duration(fast)
+                .attr("fill-opacity", 0.0)
+                .remove();
+                thisElem.transition("circle-shrink")
+                .duration("fast")
+                .attr("r", 5);
+            })
+            .transition("appear")
+            .duration(slow)
+            .attr("fill-opacity", 0.8);
+
+        // Update everything
+        svg.selectAll("circle").data(dataSubset, dataKey)
+        .transition()
+        .duration(slow)
+        .attr("cx", function(d) {return scales[selectedXAxis][0](d[selectedXAxis]);})
+        .attr("cy", function(d) {return scales[selectedYAxis][1](d[selectedYAxis]);});
+      }
+
+      var svg = d3.select("#container").append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .attr("overflow", "visible");
+
+      // Add dropdown elements
+      var dropdownX = d3.select("#myDropdown");
+      var dropdownY = d3.select("#myDropdown2");
+
+      cols.forEach(function(d) {
+         dropdownX.append("a")
+          .on("click", function() {
+              selectedXAxis = d3.select(this).text();
+              changeAxis();
+          })
+          .text(d);
+        dropdownY.append("a")
+          .on("click", function() {
+              selectedYAxis = d3.select(this).text();
+              changeAxis();
+          })
+          .text(d);
+      });
+
+      // function for errors
+      function callbackError(error, data) {
+          dataset = addKey(data);
+          loadData();
+      }
+      d3.csv("http://localhost:8000/cwurData.csv", callbackError);
+
+    </script>
+  </body>
+</html>

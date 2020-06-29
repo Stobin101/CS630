@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cole's Outrageous Fun</title>
+    <!-- <link rel = "stylesheet" type="text/css" href="style.css"> -->
+    <style>
+
+    </style>
+    <script src = 'https://d3js.org/d3.v4.min.js'></script>
+  </head>
+  <body>
+    <input type="number" id="myNumber" value="" min="1" max="26410">
+    <p>Input a runner between 1 and 26410.</p>  
+    <button onclick="myFunction()">Generate Graph</button>
+    <script>
+      function myFunction() {
+        var runner = document.getElementById("myNumber").value;
+        document.getElementById("demo").innerHTML = x;
+      }
+      var cols = ["5K", "10K", "15K", "20K", "25K", "30K", "35K", "40K", "Official_Time"];
+      function findSplitsDif(data, runner) {
+        var numRows=0; //there are 26410 rows/runners
+        var 5kTotal;
+        var 10kTotal;
+        var 15kTotal;
+        var 20kTotal;
+        var 25kTotal;
+        var 30kTotal;
+        var 35kTotal;
+        var 40kTotal;
+        var finishSplitTotal;
+        data.forEach(function(d) {
+          numRows++;
+          5kTotal += d.5k ;
+          10kTotal += (d.10k - d.5k) ;
+          15kTotal += (d.15k - d.10k) ;
+          20kTotal += (d.20k - d.15k) ;
+          25kTotal += (d.35k - d.20k) ;
+          30kTotal += (d.30k - d.25k) ;
+          35kTotal += (d.35k - d.30k) ;
+          40kTotal += (d.40k - d.35k) ;
+          finishSplitTotal += (d.Official_Time - d.40k) ;
+        });
+        var avg5kSplit = 5kTotal / numRows;
+        var avg10kSplit = 10kTotal / numRows;
+        var avg15kSplit = 15kTotal / numRows;
+        var avg20kSplit = 20kTotal / numRows;
+        var avg25kSplit = 25kTotal / numRows;
+        var avg30kSplit = 30kTotal / numRows;
+        var avg35kSplit = 35kTotal / numRows;
+        var avg40kSplit = 40kTotal / numRows;
+        var avgFinishkSplit = finishSplitTotal / numRows;
+      }
+
+      function loadData() {
+          var dataSubset = chooseSubset(selectedYear, numPoints, random, dataset);
+
+          // ******* Set Ranges *******
+          var ranges = chooseRanges(dataSubset);
+          var scales = chooseScales(ranges);
+
+          // ******* Add data *******
+
+          //******* Add Other Functionality *******
+          changeAxis(random);
+      }
+      function callbackError(error, data) {
+              dataset = addKey(data);
+              loadData();
+          }
+          d3.csv("http://localhost:8000/marathon_results_2017.csv", callbackError)
+          ;
+    </script>
+  </body>
+</html>

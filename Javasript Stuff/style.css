@@ -1,0 +1,20 @@
+header{
+  font: comic-sans;
+  font-style: italic;
+}
+
+#container{
+font-size: 50;
+  width: 50%;
+  margin: 0 auto;
+  /*padding: 20px;*/
+  /*border: 1px solid #666;*/
+  background-color: #FFDEAD;
+  color: rgb(123,210,15);
+  /*background-position: center;*/
+  /*http://www.cssbasics.com/css-divisions/ used this site for reference*/
+
+}
+svg{
+  background-color: #FFDEAD;
+}

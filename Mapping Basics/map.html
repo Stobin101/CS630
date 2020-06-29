@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Plotting Characters</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+    body {
+      text-align: center;
+    }
+    p,text {
+      font-family: 'Roboto', sans-serif;
+    }
+    h1 {
+      font-family: 'Georgia', serif;
+      font-weight: 200;
+    }
+    path {
+      fill: rgb(20,20,250);
+      stroke: rgb(20,20,20);
+    }
+
+    #container {
+      margin: 0 auto;
+      margin-top: 50px;
+      width: 95%;
+    }
+
+    #explain-text {
+      margin: 0 auto;
+      width: 70%;
+    }
+    </style>
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+</head>
+<body>
+  <h1>Plotting Characters using the <code>path</code></h1>
+<div id="container"></div>
+<div id="explain-text">
+  <p>
+    An example of a scatterplot that uses different plotting characters using the <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths"></a><code>path</code> element</a>.  Inspect the code to see the auto-generated paths.  Check out <a href="https://bl.ocks.org/mbostock/3883245">this example</a> to see how to use a <code>path</code> element to make a line chart.
+  </p>
+</div>
+<script>
+// ******* Constants *******
+const width = 1000,
+      height = 600,
+      margin = {
+          top: 10,
+          bottom: 100,
+          left: 100,
+          right: 10,
+      };
+
+
+// ******* create a path-generating tool *******
+
+// Options: d3.symbolCircle, d3.symbolCross, d3.symbolDiamond,
+//    d3.symbolSquare, d3.symbolStar, d3.symbolTriangle, d3.symbolWye
+
+// ******* Scales *******
+var path = d3.geoPath()
+    .projection(d3.geoAlbersUsa());
+
+
+// ******* Create SVG *******
+var svg = d3.select("#container").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("margin", "0 auto")
+    .style("display", "block")
+    .style("overflow", "visible")
+
+// ******* Generate plot *******
+d3.json("us_states.json", function(dataset){
+  var states = svg.selectAll("path")
+  .data(dataset.features)                    // example data
+  .enter()
+  .append("path")
+  .attr("d", path)
+  .attr("fill-opacity", 0.8)
+  .attr("fill", "rgb(108, 59, 152)");
+  // .attr("transform", function(d){
+  //   return `translate(${x(d[0])}, ${y(d[1])})`
+  // });
+d3.csv("election_1968.csv", function(dataset){
+  var states = svg.selectAll("path")
+  .data(dataset)
+  .style("fill", function(d){
+    if (d.nixon_electoral_votes){
+      return "rgb(250,0,0)"
+    }
+    if (d.humphrey_electoral_votes){
+      return "rgb(0,0,250)"
+    }
+    if (d.wallace_electoral_votes){
+      return "rgb(0,250,0)"
+    }
+  })
+});
+})
+
+// paths.filter(function(d){return d[1]>5})
+//     .attr("d", starPathData)
+//     .attr("fill", "rgb(200,12,50)")
+//     .on("mouseover", function(d){
+//       d3.select(this)
+//       .transition()
+//       .duration(2000)
+//       .attr("d", bigWyePathData)
+//     })
+
+// ******* Axes *******
+// svg.append("g")
+//     .attr("transform",`translate(${margin.left}, ${height - margin.bottom})`)
+//     .call(d3.axisBottom(x).ticks(5));
+//
+// svg.append("text")
+//     .attr("transform",
+//           `translate(${width / 2}, ${height - (margin.bottom / 2)})`)
+//     .text("x-axis");
+//
+// svg.append("g")
+//     .attr("transform", `translate(${margin.left}, ${0})`)
+//     .call(d3.axisLeft(y).ticks(2));
+//
+// svg.append("text")
+//     .attr("transform",
+//         `translate(${margin.left / 2}, ${height / 2}) rotate(-90) `)
+//     .text("y-axis");
+
+// svg.append("path").attr("d", basicStarAtOrigin).attr("fill", "rgb(200,12,50)")
+
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+body {
+    font-family: sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+div {
+    margin: 0 auto;
+}
+
+main {
+    width: 80%;
+    margin: 0 auto;
+}
+
+#left{
+  width: 25%;
+  margin: 0 auto;
+
+}
+#middle1{
+  width: 25%;
+}
+#middle2{
+  width: 25%;
+}
+#right{
+  width: 25%;
+}
+
+
+/*.well {
+    background-color: #ddd;
+    width: 50%;
+    padding: 10px;
+}
+
+#solution {
+    width: 90%;
+    background-color: #efefef;
+    min-height: 30em;
+    margin-top: 20px;
+}
+
+#keyboard {
+    min-width: 80%;
+    min-height: 10em;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    margin: 10px auto;
+    padding: 10px;
+}
+
+#output {
+    text-align: center;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    width: 75%;
+}*/

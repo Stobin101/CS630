@@ -1,0 +1,120 @@
+<!-- Non-Stopword Text Comparision in "Siddhartha" and "Mother Goose" -->
+<!-- By Cole DeMeulemeester and Sam Tobin -->
+<html>
+<head>
+  <meta charset = "utf-8">
+  <title>Text Comparison</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <style>
+    h1{
+      margin: 0 auto;
+      text-align: center;
+    }
+    #container{
+      float: right;
+      margin: 0 auto;
+      margin-top: 50px;
+      margin-bottom: 50px;
+      width: 80%;
+      border-color: black;
+    }
+    p {
+      position:relative;
+    }
+  </style>
+  <script src='https://d3js.org/d3.v4.min.js'></script>
+</head>
+<body>
+  <h1> Percentage of Total Words that are Non-Stopwords in "Siddhartha" and "Mother Goose"</h1>
+  <div id="container"></div>
+  <p> By creating this graph showing the percentages of non-stopwords, it becomes apparent that the level of literature may not be dependent on the accumulation of meaning-carrying words.<br>
+    Consequently, there must be another factor in determining the quality of a written work.
+  </p>
+  <script>
+    //*******Constants*******
+    const width = 750,
+          height = 500,
+          margin = {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10,
+          };
+    // loads the data that we have compiled
+    d3.csv("http://localhost:8000/StopWordsComparison.csv", function(textdata){
+      var barWidth = width*.9/2;
+      var between = (width*0.1);
+
+      // appends an svg on which we create our graphic
+      var svg = d3.select("#container")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .style("display", "block")
+      .style("background-color", "rgb(255,255,255)")
+      .style("overflow", "visible");
+
+      // creates a boarder on our graphic. Yes I know I could have used css to do this much more quickly but I already wrote this into the program
+      var borderPath = svg.append("rect")
+             			.attr("x", 0)
+             			.attr("y", 0)
+             			.attr("height", height)
+             			.attr("width", width)
+             			.style("stroke", "rgb(0,0,0)")
+             			.style("fill", "none")
+             			.style("stroke-width", 1);
+
+      // appends an image representing the Siddhartha data to the graphic. The height is representitive of the percentage of non-stopwords
+      svg.append("svg:image")
+        .attr("xlink:href", "http://localhost:8000/Siddhartha.jpg")
+        .attr("x", 0)
+        .attr("y", height -textdata[0]["Sid"]*height)
+        .attr("width", barWidth) //not sure why images maintain their proportions as opposed to being stretched to the desired width
+        .attr("height", textdata[0]["Sid"]*height);
+
+      // appends an image representing the Mother Goose data to the graphic. The height is representitive of the percentage of non-stopwords
+      svg.append("svg:image")
+        .attr("xlink:href", "http://localhost:8000/Mother_Goose.jpg")
+        .attr("x", barWidth + between)
+        .attr("y", height -textdata[0]["MG"]*height)
+        .attr("width", barWidth)//again, not sure why this does not stretch the image
+        .attr("height", textdata[0]["MG"]*height);\
+
+      // creates axis lines without adding to non-data chartjunk. Using that Tufte inspiration
+      svg.append("rect")
+        .attr("x", 2)
+        .attr("y", height/4*3)
+        .attr("width", width-4)
+        .attr("height", 5)
+        .style("fill", "rgb(255,255,255)");
+      svg.append("rect")
+        .attr("x", 2)
+        .attr("y", height/2)
+        .attr("width", width-4)
+        .attr("height", 5)
+        .style("fill", "rgb(255,255,255)");
+
+      // creates axis labels
+      var axisLabels = svg.append("g");
+      axisLabels.append("text")
+          .attr("x", (0))
+          .attr("y", height/4*3+12)
+          .attr("text-anchor", "right")
+          .attr("font-size", "25")
+          .text("25%");
+      axisLabels.append("text")
+          .attr("x", (0))
+          .attr("y", height/2+12)
+          .attr("text-anchor", "right")
+          .attr("font-size", "25")
+          .text("50%");
+      axisLabels.append("text")
+          .attr("x", (0))
+          .attr("y", height/4+12)
+          .attr("text-anchor", "right")
+          .attr("font-size", "25")
+          .text("75%");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!-- Visualizing a Runner's Splits to the Average in the 2017 Boston Marathon -->
+<!-- By Sam Tobin and Cole DeMeulemeester -->
+<html>
+<head>
+  <meta charset = "utf-8">
+  <title>Marathon Data</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <style>
+    h1{
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    path {
+      stroke: rgb(20, 20, 20);
+      stroke-width: 5;
+    }
+
+    #container{
+      float: left;
+      margin: 0 auto;
+      margin-top: 50px;
+      margin-bottom: 50px;
+      width: 80%;
+      border-color: black;
+    }
+  </style>
+  <script src='https://d3js.org/d3.v4.min.js'></script>
+</head>
+<body>
+  <h1>Selected Runner against Average Split of 2017 Boston Marathon</h1>
+  <p>This visualization compares the splits of one runner to the <br>
+    average splits of the entire marathon. The bars represent the <br>
+    magnitude of the difference between the splits, while the color <br>
+    represents faster (blue) or slower (red).</p>
+
+  <!-- Creates an input field for the user to select which runner to compare -->
+  <input type="number" id="athleteNumber" value="1" min="1" max="26410">
+  <p>Input an athlete between 1 and 26410.</p>
+  </input>
+
+  <!-- Button that generates the visualization -->
+  <button onclick = "genViz()">Generate Graph<button>
+
+  <div id="container"></div>
+  <script>
+    //*******Constants*******
+    const width = 1500,
+          height = 500,
+          margin = {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10,
+          };
+    const padding = 30;
+
+    // appends an svg on which the visualization is charted
+    var svg = d3.select("#container")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .style("display", "block")
+                .style("overflow", "visible");
+
+    //*******Load Data and Generate Plot*******
+    // creates the graphic
+    function genViz(){
+      // loads the data
+      d3.csv("http://localhost:8000/marathon_2017_with_seconds.csv", function(resultsdata){
+        // loads the map of the path
+        d3.json("http://localhost:8000/bosmar.json", function(marathonpathdata){
+
+          // calculates the results for the average runner
+          var avgs = generateAvgs(resultsdata);
+
+          // orientates the Boston Marathon path data
+          var projection = d3.geoConicEquidistant()
+                             .rotate([74 + 30 / 60, -38 - 50 / 60])
+                             .fitExtent(
+                                  [[padding, padding],
+                                  [-padding + width, -padding + height]],
+                                  marathonpathdata.features[0])
+
+          // locations of the 5k split markers
+          var coordinates = [[-71.472306, 42.250917], [-71.427583, 42.272972],
+                             [-71.368500, 42.283722], [-71.313167, 42.295833],
+                             [-71.265872, 42.318553], [-71.222367, 42.336707],
+                             [-71.166154, 42.340085], [-71.109075, 42.345435],
+                             [-71.085268, 42.347936]];
+
+          // creates a variable for the projection of the Boston Marathon path
+          var path = d3.geoPath()
+                       .projection(projection); // ensure centred in group
+
+          // appends the Boston Marathon path to the visualization
+          var route = svg.selectAll(".marathon_path")
+                         .data(marathonpathdata.features)
+                         .enter()
+                         .append("path")
+                         .attr("d", path)
+                         .attr("fill", "none")
+                         .attr("class", "marathon_path");
+
+        // retrieves the user input runner of which we are examining
+         var myRunner = document.getElementById("athleteNumber").value;
+
+         // calculates the splits of the user input runner
+         var splits = generateSplits(resultsdata, myRunner);
+
+         // removes old data
+         svg.selectAll("g")
+           .remove();
+
+        // adds new data
+         svg.selectAll("g")
+           .data(coordinates)
+           .enter()
+           .append("g")
+           .each(function(d, i){
+             var x = projection(d)[0];
+             var y = projection(d)[1];
+             var w = 15;
+             var text = ""+avgs[i]/60+"";
+             var rtext = ""+splits[i]/60+"";
+             var shortText = text.substring(0, 5)+" minutes on average.";
+             var runnerText = rtext.substring(0, 5)+" minutes for this runner.";
+             d3.select(this)
+               .append("circle")
+               .attr("r", 10)
+               .attr("fill", "rgb(0, 0, 0)")
+               .attr("cx", x)
+               .attr("cy", y);
+             d3.select(this)
+               .append("rect")
+               .attr("x", x-w/2)
+               .attr("y", y-20-Math.abs((splits[i]-avgs[i])/60))
+               .attr("width", w)
+               .attr("height", Math.abs((splits[i]-avgs[i])/60))
+               .attr("fill", function(d){
+                 if ((splits[i]-avgs[i])<=0){
+                   return "blue";
+                 }
+                 else{
+                   return "red";
+                 }
+               });
+             d3.select(this)
+               .append("text")
+               .attr("x", function(d){
+                 if (i==8){
+                   return (x+20);
+                 }
+                 else{
+                   return (x-25);
+                 }
+               })
+               .attr("y", function(d){
+                 if (i==6||i==8){
+                   return y-120;
+                 }
+                 else{
+                   return y+40;
+                 }
+               }) //y+40
+               .text(shortText);
+             d3.select(this)
+               .append("text")
+               .attr("x", function(d){
+                 if (i==8){
+                   return (x+20);
+                 }
+                 else{
+                   return (x-25);
+                 }
+               })
+               .attr("y",function(d){
+                 if (i==6||i==8){
+                   return y-100;
+                 }
+                 else{
+                   return y+60;
+                 }
+               })
+               .text(runnerText);
+           });
+        });
+      });
+    }
+
+
+
+
+
+    //*******Helper Functions*******
+
+    function generateSplits(data, athlete){
+      var splits = [];
+      var cols = ["five_split","ten_split","fifteen_split",
+                  "twenty_split","twentyfive_split",
+                  "thirty_split","thirtyfive_split","forty_split",
+                  "Official_Time_s"];
+      cols.forEach(function(col){
+        if (col=="twentyfive_split"){
+          splits.push((+data[athlete][col])+(+data[athlete]["Half_split"]))
+        }
+        else{
+          splits.push(+data[athlete][col]);
+        }
+      });
+      return splits;
+    }
+
+
+    function generateAvgs(data) {
+      var avgs = [];
+      var cols = ["five_split","ten_split","fifteen_split",
+                  "twenty_split","twentyfive_split",
+                  "thirty_split","thirtyfive_split","forty_split",
+                  "Official_Time_s"];
+
+      cols.forEach(function(col){
+        avgs.push(d3.mean(data, function(d){
+          if (col=="twentyfive_split"){
+            return (+d[col])+(+d["Half_split"]);
+          }
+          return +d[col];
+        }));
+      });
+      return avgs;
+    }
+
+  </script>
+</body>
+</html>

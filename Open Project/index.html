@@ -1,0 +1,197 @@
+<!-- NFL Play by Play data for given yardage to go and current down -->
+<!-- By Cole DeMeulemeester and Sam Tobin -->
+<html>
+<head>
+  <meta charset = "utf-8">
+  <title>NFL Run/Pass Stats</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <style>
+    h1{
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #container{
+      float: left;
+      margin: 0 auto;
+      margin-top: 50px;
+      margin-bottom: 50px;
+      width: 80%;
+      border-color: black;
+    }
+  </style>
+  <script src='https://d3js.org/d3.v4.min.js'></script>
+</head>
+<body>
+  <h1>NFL Play-By-Play Stats</h1>
+<!--The text field to recieve user input on yards to go  -->
+  <input type="number" id="yards" value="10" min="1" max="20">
+  <p>Input between 1 and 20 yards to go.</p>
+  </input>
+  <!--The text field to recieve user input on which down to select play data from -->
+  <input type="number" id="down" value="1" min="1" max="4">
+  <p>Input Down. (1-4)</p>
+  <!-- The button that triggers the function to create the visualization with the inputs -->
+  <button id = "goButton2", onclick="generateViz()">Generate Graph</button>
+  <!-- Instructions and background -->
+  <p>This graphic takes the input down and distance and charts all the play data for those parameters for the 2015 NFL year.<br></p>
+  <p>The chart shows the first down line in yellow (as seen on TV!) as indicated by the Yards to Go with the Line of Scrimmage being at the 50 yard line.<br></p>
+  <p>Each play's net yardage is indicated in either red if the play lost yards or blue if the play gained yards.</p>
+  <p>The Average Yards Gained is indicated by a solid black line.</p>
+  </input>
+<!-- The div in which the graphic is created -->
+  <div id="container"></div>
+
+  <script>
+    //*******CONSTANTS*******
+    const width = 1000,
+          height = 650,
+          imgWidth = height*556/800,
+          margin = {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10,
+          };
+    const padding = 30;
+
+    //*******VARS*******
+    //*******SVG*******\
+    // creates the svg
+    var svg = d3.select("#container")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("display", "block")
+    .style("overflow", "visible");
+
+// appends the field image/axis to the svg
+    var imgs = svg.selectAll("image").data([0]);
+    imgs.enter()
+    .append("svg:image")
+    .attr("xlink:href", "http://localhost:8000/field.jpg")
+    .attr("x", "0")
+    .attr("y", "0")
+    .attr("width", width)
+    .attr("height", height);
+
+// takes the input parameters and generates the visualization
+    function generateViz(){ //create box displaying how many yards will be gained/conversionRate
+      var conversionRate;
+      var yardsAvg;
+
+      var currentDown = document.getElementById("down").value;
+      var currentYards = document.getElementById("yards").value;
+
+      //*******LOAD CSV*******
+      var data = d3.csv("http://localhost:8000/nfl.csv", function(dataset){
+        yardsAvg = findAvgs(dataset, currentDown, currentYards);
+        conversionRate = findConversionRate(dataset, currentDown, currentYards);
+        // compiles the play results matching the user-input parameters
+        var dataSubset = createSubset(dataset, currentDown, currentYards);
+        // removes the old data
+        svg.selectAll("rect")
+          .remove();
+        svg.selectAll("text")
+          .remove();
+
+          // adds the new data
+        svg.selectAll("rect")
+          .data(dataSubset)
+          .enter()
+          .append("rect")
+          .attr("x", function(d){return (width-imgWidth)/2 + dataSubset.indexOf(d)*(imgWidth)/dataSubset.length})
+          .attr("y", function(d){return height/2 - height*(d)/120;})
+          .attr("width", function(d){
+            return imgWidth*(dataSubset.lastIndexOf(d)-dataSubset.indexOf(d))/dataSubset.length;
+          })
+          .attr("height", function(d){return height*Math.abs(d)/120})
+          .attr("fill", function(d){
+            if (d<0){
+              return "red";
+            }
+            else{
+              return "blue";
+            }
+          });
+          // .attr("fill-opacity", 0.1); //can't get this to work so that one can also see the field
+
+          //adds a line indicating the avg yardage gained
+          svg.append("rect")
+            .attr("x", (width-imgWidth)/2)
+            .attr("y", height/2-yardsAvg/120*height)
+            .attr("width", imgWidth)
+            .attr("height", 5);
+
+          svg.append("text")//avg yardage text
+            .attr("text-anchor", "start")
+            .attr("x", (width-imgWidth)/2-15)
+            .attr("y", height/2-yardsAvg/120*height)
+            .attr("font-size", "20")
+            .text("Average Yardage Line")
+            .attr("text-anchor", "end");
+
+            // adds a line indicating the location of the first down markers on the graphic
+            svg.append("rect")//first down marker
+              .attr("x", (width-imgWidth)/2)
+              .attr("y", height/2-currentYards/120*height)
+              .attr("width", imgWidth)
+              .attr("height", 5)
+              .attr("fill", "yellow");
+
+              svg.append("text")//first down text
+                .attr("text-anchor", "start")
+                .attr("x", (width-imgWidth)/2-15)
+                .attr("y", height/2-currentYards/120*height)
+                .attr("font-size", "20")
+                .text("First Down Line")
+                .attr("text-anchor", "end");
+      });
+
+      //*******BUILDER FUNCTIONS*******
+    }
+    function findAvgs(data, down, yards){
+      var totalYards = 0;
+      var count = 0;
+      data.forEach(function(d){
+        if (d.down==down){
+          if (d.ydstogo==yards){ //digits in string
+            totalYards+=parseInt(d.ydsnet); //FIND OUT IF ACTUALLY YARDS/DOWN
+            count++;
+          }
+        }
+      });
+      return totalYards/count;
+    }
+
+    function findConversionRate(data, down, yards){//calculates percentage of first down
+      var firsts = 0;
+      var total = 0;
+      data.forEach(function(d){
+        if (d.down==down){
+          if (d.ydstogo==yards){ //digits in string
+            if (d.ydsnet>yards){
+              firsts++;
+            } //FIND OUT IF ACTUALLY YARDS/DOWN
+            total++;
+          }
+        }
+      });
+      return 100*(firsts/total);
+    }
+    function createSubset(data, down, yards){
+      var subset = [];
+      data.forEach(function(d){
+        if (d.down==down){
+          if (d.ydstogo==yards){ //digits in string
+            subset.push(d.ydsnet);
+          }
+        }
+      });
+      subset.sort(function(a, b){return a - b});
+      return subset;
+    }
+
+  </script>
+</body>
+</html>
